@@ -213,11 +213,11 @@ func (s *Svg) UnmarshalXML(decoder *xml.Decoder, start xml.StartElement) error {
 
 			switch tok.Name.Local {
 			case "g":
-				g := Group{Owner: s, Transform: mt.NewTransform()}
-				if err = decoder.DecodeElement(&g, &tok); err != nil {
+				g := &Group{Owner: s, Transform: mt.NewTransform()}
+				if err = decoder.DecodeElement(g, &tok); err != nil {
 					return fmt.Errorf("error decoding group element within SVG struct: %s", err)
 				}
-				s.Groups = append(s.Groups, g)
+				s.Groups = append(s.Groups, *g)
 				continue
 			case "rect":
 				dip = &Rect{}
@@ -232,8 +232,6 @@ func (s *Svg) UnmarshalXML(decoder *xml.Decoder, start xml.StartElement) error {
 
 			if err = decoder.DecodeElement(dip, &tok); err != nil {
 				return fmt.Errorf("error decoding element of SVG struct: %s", err)
-			} else {
-
 			}
 
 			s.Elements = append(s.Elements, dip)
@@ -248,7 +246,7 @@ func (s *Svg) UnmarshalXML(decoder *xml.Decoder, start xml.StartElement) error {
 
 // ParseSvg parses an SVG string into an SVG struct
 func ParseSvg(str string, name string, scale float64) (*Svg, error) {
-	svg := Svg{}
+	var svg Svg
 	svg.Name = name
 	svg.Transform = mt.NewTransform()
 	if scale > 0 {
@@ -276,7 +274,7 @@ func ParseSvg(str string, name string, scale float64) (*Svg, error) {
 
 // ParseSvgFromReader parses an SVG struct from an io.Reader
 func ParseSvgFromReader(r io.Reader, name string, scale float64) (*Svg, error) {
-	svg := Svg{}
+	var svg Svg
 	svg.Name = name
 	svg.Transform = mt.NewTransform()
 	if scale > 0 {
